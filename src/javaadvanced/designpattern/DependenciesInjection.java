@@ -1,4 +1,4 @@
-package javaadvanced;
+package javaadvanced.designpattern;
 
 class Pizza {
 
