@@ -1,10 +1,21 @@
 package javaadvanced.designpattern;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 interface Shape {
+  Shape createShape();
   void draw();
 }
 
 class Circle implements Shape {
+  @Override
+  public Shape createShape() {
+    System.out.println("Creating Circle");
+    return new Circle();
+  }
+
   @Override
   public void draw() {
     System.out.println("Drawing Circle");
@@ -13,6 +24,11 @@ class Circle implements Shape {
 
 class Square implements Shape {
   @Override
+  public Shape createShape() {
+    System.out.println("Creating Square");
+    return new Square();
+  }
+  @Override
   public void draw() {
     System.out.println("Drawing Square");
   }
@@ -20,43 +36,47 @@ class Square implements Shape {
 
 class Triangle implements Shape {
   @Override
+  public Shape createShape() {
+    System.out.println("Creating Triangle");
+    return new Triangle();
+  }
+  @Override
   public void draw() {
     System.out.println("Drawing Triangle");
   }
 }
 
 class ShapeFactory {
-  public Shape createShape(String shapeType) {
-    if (shapeType == null) {
-      return null;
-    }
+  private final Map<String, Supplier<Shape>> factoryRegistry = new HashMap<>();
 
-    if (shapeType.equalsIgnoreCase("CIRCLE")) {
-      return new Circle();
-    }
-    if (shapeType.equalsIgnoreCase("SQUARE")) {
-      return new Square();
-    }
-    if (shapeType.equalsIgnoreCase("TRIANGLE")) {
-      return new Triangle();
-    }
+  void setFactoryRegistry(String type, Supplier<Shape> shape) {
+    factoryRegistry.put(type, shape);
+  }
 
-    return null;
+  Shape getFactoryRegistry(String type) {
+    Supplier<Shape> shapeSupplier = factoryRegistry.get(type);
+    if (shapeSupplier == null) {
+      throw new IllegalArgumentException("Unknown shape type: " + type);
+    }
+    return shapeSupplier.get();
   }
 }
 
 public class FactoryMethod {
+  public final static String CIRCLE = "CIRCLE";
+  public final static String SQUARE = "SQUARE";
+  public final static String TRIANGLE = "TRIANGLE";
   public static void main(String[] args) {
     ShapeFactory shapeFactory = new ShapeFactory();
 
     // Create different shapes
-    Shape circle = shapeFactory.createShape("CIRCLE");
-    Shape square = shapeFactory.createShape("SQUARE");
-    Shape triangle = shapeFactory.createShape("TRIANGLE");
+    shapeFactory.setFactoryRegistry(CIRCLE, Circle::new);
+    shapeFactory.setFactoryRegistry(SQUARE, Square::new);
+    shapeFactory.setFactoryRegistry(TRIANGLE, Triangle::new);
 
     // Draw shapes
-    circle.draw();
-    square.draw();
-    triangle.draw();
+    shapeFactory.getFactoryRegistry(CIRCLE).draw();
+    shapeFactory.getFactoryRegistry(SQUARE).draw();
+    shapeFactory.getFactoryRegistry(TRIANGLE).draw();
   }
 }
